@@ -1,0 +1,8 @@
+.cr-release-packages
+.coverage
+*.swp
+*.lock
+*.tgz
+*.save*
+charts/template/
+.bin/

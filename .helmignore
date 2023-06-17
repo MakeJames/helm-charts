@@ -1,0 +1,5 @@
+.charts/*
+.git
+*.txt
+*/temp*
+**/temp*
