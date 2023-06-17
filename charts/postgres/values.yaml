@@ -1,0 +1,106 @@
+image:
+  repository: postgres
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "15.3"
+
+replicaCount: 1
+strategy:
+  type: RollingUpdate
+
+imagePullSecrets: {}
+  # POSTGRES_PASSWORD: "password"
+
+env: {}
+  # POSTGRES_USER: ""
+  # POSTGRES_PASSWORD: ""
+
+envFrom: []
+# - configMapRef:
+#     name: config-map-name
+# - secretRef:
+#     name: secret-name
+
+dnsPolicy: ClusterFirst
+
+probes:
+  liveness:
+    enabled: true
+    initialDelaySeconds: 30
+    failureThreshold: 5
+    timeoutSeconds: 10
+  readiness:
+    enabled: true
+    initialDelaySeconds: 30
+    failureThreshold: 5
+    timeoutSeconds: 10
+  startup:
+    enabled: false
+    initialDelaySeconds: 5
+    failureThreshold: 30
+    periodSeconds: 10
+
+service:
+  enabled: true
+  type: ClusterIP
+  port:
+    protocol: TCP
+    port: 5432
+    name:
+    targetPort:
+  additionalPorts: []
+    # - name: "8080-udp"
+    #   port: 8080
+    #   protocol: UDP
+
+ingres:
+  enabled: false
+  annotations: {}
+  labels: {}
+
+persistence:
+  data:
+    enabled: false
+    emptyDir: false
+    mountPath: /var/lib/postgresql/data
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    skipuninstall: false
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

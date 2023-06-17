@@ -1,0 +1,15 @@
+apiVersion: v2
+appVersion: "15.3"
+version: 0.1.0
+type: application
+
+name: postgres
+description: The World's Most Advanced Open Source Relational Database
+keywords:
+  - postgres
+  - database
+  - relational
+  - SQL
+sources:
+  - https://www.postgresql.org/
+  - https://github.com/docker-library/postgres
