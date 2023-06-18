@@ -1,44 +1,19 @@
+# Default values for postgres.
+
+# Override the base name of the created object
+nameOverride: ""
+# Override the full name of the created object
+fullnameOverride: ""
+# Override the namespace that the chart is deployed into
+namespaceOverride: ""
+
+# Override the repository and tag
 image:
-  repository: postgres
+  registry: ""
+  repository: ""
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: "15.3"
-
-replicaCount: 1
-strategy:
-  type: RollingUpdate
-
-imagePullSecrets: {}
-  # POSTGRES_PASSWORD: "password"
-
-env: {}
-  # POSTGRES_USER: ""
-  # POSTGRES_PASSWORD: ""
-
-envFrom: []
-# - configMapRef:
-#     name: config-map-name
-# - secretRef:
-#     name: secret-name
-
-dnsPolicy: ClusterFirst
-
-probes:
-  liveness:
-    enabled: true
-    initialDelaySeconds: 30
-    failureThreshold: 5
-    timeoutSeconds: 10
-  readiness:
-    enabled: true
-    initialDelaySeconds: 30
-    failureThreshold: 5
-    timeoutSeconds: 10
-  startup:
-    enabled: false
-    initialDelaySeconds: 5
-    failureThreshold: 30
-    periodSeconds: 10
+  tag: ""
+  debug: false
 
 service:
   enabled: true
@@ -58,6 +33,8 @@ ingres:
   annotations: {}
   labels: {}
 
+replicaCount: 1
+
 persistence:
   data:
     enabled: false
@@ -67,8 +44,53 @@ persistence:
     size: 1Gi
     skipuninstall: false
 
-nameOverride: ""
-fullnameOverride: ""
+strategy:
+  type: RollingUpdate
+
+
+# Environment Variables
+secrets: {}
+
+secretsFrom: {}
+
+env: {}
+  # - POSTGRES_USER:
+  # - POSTGRES_PASSWORD:
+  # - POSTGRES_DB:
+
+envFrom: {}
+
+# default superuser
+postgresUsername: postgres
+postgresPassword: postgres
+
+postgresMaxConnections: 100
+
+# Databases to create during initialisation
+databases: []
+# Users to create during initialisation
+users: []
+
+initSql: []
+
+dnsPolicy: ClusterFirst
+
+probes:
+  liveness:
+    enabled: true
+    initialDelaySeconds: 30
+    failureThreshold: 5
+    timeoutSeconds: 10
+  readiness:
+    enabled: true
+    initialDelaySeconds: 30
+    failureThreshold: 5
+    timeoutSeconds: 10
+  startup:
+    enabled: false
+    initialDelaySeconds: 5
+    failureThreshold: 30
+    periodSeconds: 10
 
 serviceAccount:
   # Specifies whether a service account should be created

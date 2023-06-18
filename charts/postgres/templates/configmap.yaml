@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "postgres.fullname" . }}-config
+  {{- if .Values.namespaceOverride }}
+  namespace: {{ .Values.namespaceOverride }}
+  {{- end }}
+  labels:
+    {{- include "postgres.labels" . | indent 4 }}
+data:
+  post_init.sh: |
+    {{- tpl ( .Files.Get "post_init.tpl.sh" ) . | indent 4 }}
