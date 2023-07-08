@@ -6,39 +6,15 @@ nameOverride: ""
 fullnameOverride: ""
 # Override the namespace that the chart is deployed into
 namespaceOverride: ""
+# Override the image name
+imageOverride: ""
 
-postgres:
-  name: postgres
-  group: db
-  container:
-    image: postgres:9.6-alpine
-    port: 5432
-  service:
-    type: ClusterIP
-    port: 5432
-  volume:
-    name: postgres-storage
-    kind: PersistentVolumeClaim
-    mountPath: /var/lib/postgresql/data
-    pvc:
-      name: postgres-persistent-volume-claim
-      accessMode: ReadWriteOnce
-      storage: 4Gi
-  config:
-    name: postgres-config
-    data:
-      - key: POSTGRES_USER
-        value: postgres # init-db script will create the default database and user from this value - optional
-      - key: POSTGRES_PASSWORD
-        value: postgres # Value must be set, sets the default password for the superuser
-    # - POSTGRES_DB: optional environment variable can be used to define a different name for the default database
-
-# Override the repository and tag
+# Declare the repository and tag
 image:
   registry: docker.io
   repository: postgres
   pullPolicy: IfNotPresent
-  tag: 15.3-bullsye
+  tag: 15.3-bullseye
   debug: false
 
 service:
@@ -47,24 +23,31 @@ service:
   port:
     protocol: TCP
     port: 5432
-    name:
-    targetPort:
+    name: postgresql
+    targetPort: postgresql
   additionalPorts: []
     # - name: "8080-udp"
     #   port: 8080
     #   protocol: UDP
 
-ingres:
-  enabled: false
-  annotations: {}
-  labels: {}
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "250m"
+  limits:
+    memory: "128Mi"
+    cpu: "500m"
+
+# ingres:
+  # enabled: false
+  # annotations: {}
+  # labels: {}
 
 replicaCount: 1
 
 persistence:
   data:
     enabled: false
-    emptyDir: false
     mountPath: /var/lib/postgresql/data
     accessMode: ReadWriteOnce
     size: 1Gi
@@ -73,46 +56,45 @@ persistence:
 strategy:
   type: RollingUpdate
 
-
 # Environment Variables
-secrets: {}
+# secrets: {}
 
-secretsFrom: {}
+# secretsFrom: {}
 
 env:
   POSTGRES_USER: postgres # init-db script will create the default database and user from this value - optional
   POSTGRES_PASSWORD: postgres # Value must be set, sets the default password for the superuser
   # - POSTGRES_DB: optional environment variable can be used to define a different name for the default database
 
-envFrom: {}
+# envFrom: {}
 
-postgresMaxConnections: 100
+# postgresMaxConnections: 100
 
 # Databases to create during initialisation
-databases: []
+# databases: []
 # Users to create during initialisation
-users: []
+# users: []
 
-initSql: []
+# initSql: []
 
-dnsPolicy: ClusterFirst
+# dnsPolicy: ClusterFirst
 
-probes:
-  liveness:
-    enabled: true
-    initialDelaySeconds: 30
-    failureThreshold: 5
-    timeoutSeconds: 10
-  readiness:
-    enabled: true
-    initialDelaySeconds: 30
-    failureThreshold: 5
-    timeoutSeconds: 10
-  startup:
-    enabled: false
-    initialDelaySeconds: 5
-    failureThreshold: 30
-    periodSeconds: 10
+    #probes:
+    #liveness:
+    #enabled: true
+    #initialDelaySeconds: 30
+    #failureThreshold: 5
+    #timeoutSeconds: 10
+    #readiness:
+    #enabled: true
+    #initialDelaySeconds: 30
+    #failureThreshold: 5
+    #timeoutSeconds: 10
+    #startup:
+    #enabled: false
+    #initialDelaySeconds: 5
+    #failureThreshold: 30
+    #periodSeconds: 10
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -139,7 +121,7 @@ securityContext: {}
 autoscaling:
   enabled: false
   minReplicas: 1
-  maxReplicas: 100
+  maxReplicas: 10
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 

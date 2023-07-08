@@ -1,38 +1,51 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.postgres.name }}
+  name: {{ include "postgres.fullname" . | quote }}
   labels:
-    app: {{ .Values.postgres.name }}
-    group: {{ .Values.postgres.group }}
+    {{- include "postgres.labels" . | indent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.postgres.name }}
+      app: {{ include "postgres.fullname" . | quote }}
   template:
     metadata:
       labels:
-        app: {{ .Values.postgres.name }}
-        group: {{ .Values.postgres.group }}
+        app: {{ include "postgres.fullname" . | quote}}
     spec:
+      replicas: {{ .Values.replicaCount }}
       volumes:
-        - name: {{ .Values.postgres.volume.name }}
+        - name: {{ include "postgres.volume.name" . | quote }}
           persistentVolumeClaim:
-            claimName: {{ .Values.postgres.volume.pvc.name }}
+            claimName: {{ include "postgres.volume.claimName" . | quote }}
       containers:
-        - name: {{ .Values.postgres.name }}
-          image: {{ .Values.postgres.container.image }}
+        - name: {{ include "postgres.fullname" . | quote }}
+          image: {{ include "postgres.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+          {{- with .Values.resources }}
+            requests:
+              memory: {{ .requests.memory }}
+              cpu: {{ .requests.cpu }}
+            limits:
+              memory: {{ .limits.memory }}
+              cpu: {{ .limits.cpu }}
+          {{- end }}
           ports:
-            - containerPort: {{ .Values.postgres.container.port }}
+            - containerPort: {{ .Values.service.port.port }}
           env:
             {{- range $key, $val := .Values.env }}
-            - name: {{ $key }}
+            - name: {{ $key | quote }}
               value: {{ $val | quote }}
             {{- end }}
-          envFrom:
-            - configMapRef:
-                name: {{ .Values.postgres.config.name }}
           volumeMounts:
-            - name: {{ .Values.postgres.volume.name }}
-              mountPath: {{ .Values.postgres.volume.mountPath }}
+            - name: {{ include "postgres.volume.name" . | quote }}
+              mountPath: {{ .Values.persistence.data.mountPath | quote }}
+  strategy:
+    type: {{ .Values.strategy.type }}
+    {{- if eq .Values.strategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    {{- end -}}

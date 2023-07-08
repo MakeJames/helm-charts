@@ -1,16 +1,18 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.postgres.name }}
+  name: {{ include "postgres.fullname" . | quote }}
   labels:
-    group: {{ .Values.postgres.group }}
+    {{- include "postgres.labels" . | indent 4 }}
 spec:
-  type: ClusterIP
+  type: {{ .Values.service.type }}
   ports:
-    - name: postgresql
-      port: 5432
-      protocol: TCP
-      targetPort: postgresql
+    {{- with .Values.service.port }}
+    - name: {{ .name }}
+      port: {{ .port }}
+      protocol: {{ .protocol }}
+      targetPort: {{ .targetPort }}
+    {{- end }}
   selector:
-    app: {{include "postgres.fullname" . | quote }}
+    app: {{ include "postgres.fullname" . | quote }}
     deploymentconfig: {{ include "postgres.fullname" . | quote }}
